@@ -1,0 +1,87 @@
+function img=seamCarving(img,mask,w,h)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%seamCarving function: resize the given image based on seam carving
+%technique.
+%Usage:
+%   result=seamCarving(img,mask,300,200);
+%Input:
+%   -img: input image (uint8)
+%   -mask: markup mask (double), it should have high postive values for
+%   important regions and high negative values for the most ignored pixels.
+%   Make it zeros(size(image,1),size(image2)) if you don't care!
+%   -w: new width, should be two digits at least
+%   -h: new height, should be two digits at least
+%Output:
+%   -img: result image (uint8)
+%Citation: Avidan, Shai, and Ariel Shamir. "Seam carving for content-aware
+%image resizing. ACM Transactions on graphics (TOG). Vol. 26. No. 3.
+%ACM, 2007"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Author: Mahmoud Afifi, York University.
+
+%check
+if w<10 || h<10
+    error('very small dimensions!');
+end
+
+
+
+[h_,w_,c]=size(img); %size of original image
+
+k=abs(w-w_)+abs(h-h_);
+waitbar_ = waitbar(0,'Processing ...');
+
+
+count=0;
+if w_>w
+    %remove m pixels
+    m=w_-w;
+    for i=1:m
+        waitbar(count/k,waitbar_,'Processing...');
+        G=getGradient(img,mask);
+        seams = getSeams( G, 'v');
+        s=getBestSeam(G,seams);
+        [img,mask]=removeSeam(img,s,'v',mask);
+        count=count+1;
+    end
+end
+
+if h_>h
+    %remove m pixels
+    m=h_-h;
+    for i=1:m
+        waitbar(count/k,waitbar_,'Processing...');
+        G=getGradient(img,mask);
+        seams = getSeams( G, 'h');
+        s=getBestSeam(G,seams);
+        [img,mask]=removeSeam(img,s,'h',mask);
+        count=count+1;
+    end
+end
+if h_<h
+    I=img;
+    m=h-h_;
+    for i=1:m
+        waitbar(count/k,waitbar_,'Processing...');
+        G=getGradient(I,mask);
+        seams = getSeams( G, 'h');
+        s=getBestSeam(G,seams);
+        [img,I,mask]=addSeam(img,s,'h',I,mask);
+        count=count+1;
+    end
+end
+if w_<w
+    m=w-w_;
+    I=img;
+    for i=1:m
+        waitbar(count/k,waitbar_,'Processing...');
+        G=getGradient(I,mask);
+        seams = getSeams( G, 'v');
+        s=getBestSeam(G,seams);
+        [img,I,mask]=addSeam(img,s,'v',I,mask);
+        count=count+1;
+    end
+end
+close(waitbar_);
+end

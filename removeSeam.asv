@@ -1,0 +1,66 @@
+function newImg = removeSeam( img, seam , type )
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%removeSeam function: remove given seam from the input image (img)
+%Usage:
+%    newImg = removeSeam( img, seam );
+%Input:
+%   -img: input image
+%   -seam: the interesting seam, that is extracted from getSeams function
+%   -type: 'H' for horizontal seams - 'V' for vertical seams
+%Output:
+%   -newImg: new image after removing the seam
+%
+%Citation: Avidan, Shai, and Ariel Shamir. "Seam carving for content-aware
+%image resizing. ACM Transactions on graphics (TOG). Vol. 26. No. 3.
+%ACM, 2007"
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Author: Mahmoud Afifi, York University.
+
+
+
+
+switch lower(type)
+    case 'h'
+        newSize=[size(img,1)-1,size(img,2)];
+        T=0; %no transpose
+    case 'v'
+        %transpose img and seam
+        img_=zeros(size(img,2),size(img,1),size(img,3));
+        for c=1:size(img,3)
+            img_(:,:,c)=img(:,:,c)';
+        end
+        img=img_;
+        clear img_;
+        newSize=[size(img,1)-1,size(img,2)];
+        s_(1,:,2)=seam(1,:,1);
+        s_(1,:,1)=seam(1,:,2);
+        seam=s_;
+        clear s_;
+        T=1; %raise transpose flag
+end
+
+%convert indices to linear indices
+linearInd=sub2ind([size(img,1),size(img,2)], seam(:,:,1), seam(:,:,2));
+%get linear indicies of residual pixels
+C=setdiff([1:size(img,1)*size(img,2)],linearInd);
+newGray=zeros(length(C),size(img,3)); %memory allocation
+newImg=zeros(newSize(1),newSize(2),size(img,3));  %memory allocation
+map=zeros(newSize(1),newSize(2));  %memory allocation
+for c=1:size(img,3)
+    gray=img(:,:,c);
+    gray=gray(:);
+    newGray(:,c)=gray(C);
+    newImg(:,:,c)=reshape(newGray(:,c),newSize);
+end
+
+if T==1
+    img_=zeros(size(newImg,2),size(newImg,1),size(newImg,3));
+    for c=1:size(img,3)
+        img_(:,:,c)=newImg(:,:,c)';
+    end
+    newImg=img_;
+    clear img_;
+end
+newImg=uint8(newImg);
+end
+
