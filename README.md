@@ -11,3 +11,5 @@ Read `Readme.pdf` for more technical information
 
 ### Reference paper
 Avidan, Shai, and Ariel Shamir. "Seam carving for content-aware image resizing." ACM Transactions on graphics (TOG). Vol. 26. No. 3. ACM, 2007.
+
+[![View Seam carving for content-aware image resizing on File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/62626-seam-carving-for-content-aware-image-resizing)
